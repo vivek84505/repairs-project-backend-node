@@ -107,52 +107,6 @@ const addUser = (req, res) => {
   });
 };
 
-const login = (req, res) => {
-  sqlQuery = ` select firstname,user_id,email,password from public.tbl_users where email = '${req.body.email}' `;
-  pool.query(sqlQuery, (error, results) => {
-    console.log("results====>", results.rowCount);
-    if (results.rowCount == 1) {
-      let res = results.rows[0];
-      console.log("res.email=======>", res.email);
-      console.log("res.password=======>", res.password);
-
-      var passwordIsValid = bcrypt.compareSync(req.body.password, res.password);
-
-      if (!passwordIsValid) {
-        res.status(201).send("Incorrect credentials");
-      }
-
-      var token = jwt.sign(
-        {
-          id: res.user_id,
-        },
-        process.env.API_SECRET,
-        {
-          expiresIn: 86400,
-        }
-      );
-
-      res.status(200).send({
-        user: {
-          id: res.user_id,
-          email: res.email,
-          fullName: res.firstname,
-        },
-        message: "Login successfull",
-        accessToken: token,
-      });
-    } else {
-      res.status(201).send("User does not exists");
-    }
-    // sqlQuery = `delete from public.tbl_users where user_id = '${user_id}' `;
-    // pool.query(sqlQuery, (error, results) => {
-    //   if (error) throw error;
-
-    //   res.status(201).send("User Deleted succesfully");
-    // });
-  });
-};
-
 const removeUser = (req, res) => {
   let returnObj = {};
   let reqBody = req.body;
@@ -216,7 +170,6 @@ const updateUser = (req, res) => {
           sqlQuery = ` update  public.tbl_users set firstname ='${firstname}',lastname ='${lastname}',email ='${email}',mobile ='${mobile}',city ='${city}'  where user_id = '${user_id}' `;
 
           pool.query(sqlQuery, (error, results1) => {
-            console.log("update results======>", results1);
             if (error) throw error;
             if (results1.rowCount > 0) {
               returnObj.returnmsg = "succesfull";
@@ -243,5 +196,4 @@ module.exports = {
   addUser,
   removeUser,
   updateUser,
-  login,
 };
