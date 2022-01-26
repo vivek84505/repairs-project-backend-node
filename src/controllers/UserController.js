@@ -8,14 +8,14 @@ const getUsers = (req, res) => {
   let reqBody = req.body;
   let returnObj = {};
   const schema = Joi.object({
-    user_id: Joi.string().required(),
+    user_id: Joi.string().allow(""),
   });
 
   Joi.validate(reqBody, schema, (err, value) => {
     if (!err) {
       sqlQuery = "Select * from tbl_users where 1= 1 ";
 
-      if (typeof (reqBody.user_id != "undefined")) {
+      if (typeof reqBody.user_id != "undefined") {
         sqlQuery += " and user_id = " + reqBody.user_id;
       }
 
@@ -112,7 +112,7 @@ const removeUser = (req, res) => {
   let reqBody = req.body;
 
   const schema = Joi.object({
-    user_id: Joi.string().required(),
+    user_id: Joi.number().required(),
   });
 
   Joi.validate(reqBody, schema, (err, value) => {
@@ -164,11 +164,10 @@ const updateUser = (req, res) => {
   Joi.validate(reqBody, schema, (err, value) => {
     if (!err) {
       sqlQuery = ` select * from public.tbl_users where user_id = '${user_id}' `;
-      console.log("sqlQuery-1", sqlQuery);
-      pool.query(sqlQuery, (error, results) => {
-        if (results.rows.length > 0) {
-          sqlQuery = ` update  public.tbl_users set firstname ='${firstname}',lastname ='${lastname}',email ='${email}',mobile ='${mobile}',city ='${city}'  where user_id = '${user_id}' `;
 
+      pool.query(sqlQuery, (error, results) => {
+        if (results.rowCount > 0) {
+          sqlQuery = ` update  public.tbl_users set firstname ='${firstname}',lastname ='${lastname}',email ='${email}',mobile ='${mobile}',city ='${city}'  where user_id = '${user_id}' `;
           pool.query(sqlQuery, (error, results1) => {
             if (error) throw error;
             if (results1.rowCount > 0) {
